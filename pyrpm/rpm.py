@@ -11,11 +11,12 @@ $Id$
 '''
 __revision__ = '$Rev$'[6:-2]
 
+
 from StringIO import StringIO
-from cStringIO import StringIO
 import struct
-from pyrpm import rpmdefs
 import re
+
+from pyrpm import rpmdefs
 
 HEADER_MAGIC_NUMBER = re.compile('(\x8e\xad\xe8)')
 
@@ -33,6 +34,7 @@ def find_magic_number(regexp, data):
         else:
             string += byte
 
+
 class Entry(object):
     ''' RPM Header Entry
     '''
@@ -47,8 +49,10 @@ class Entry(object):
                         rpmdefs.RPM_DATA_TYPE_INT64:           self.__readint64,
                         rpmdefs.RPM_DATA_TYPE_STRING:          self.__readstring,
                         rpmdefs.RPM_DATA_TYPE_BIN:             self.__readbin,
+                        rpmdefs.RPM_DATA_TYPE_STRING_ARRAY:    self.__readstring,
+                        rpmdefs.RPM_DATA_TYPE_ASN1:            self.__readbin,
+                        rpmdefs.RPM_DATA_TYPE_OPENPGP:         self.__readbin,
                         rpmdefs.RPM_DATA_TYPE_I18NSTRING_TYPE: self.__readstring}
-
         self.store.seek(entry[2])
         self.value = self.switch[entry[1]]()
         self.tag = entry[0]
@@ -64,7 +68,7 @@ class Entry(object):
         where the char should be read
         '''
         data = self.store.read(offset)
-        fmt = '!'+str(offset)+'c'
+        fmt = '!' + str(offset) + 'c'
         value = struct.unpack(fmt, data)
         return value
 
@@ -77,23 +81,23 @@ class Entry(object):
         ''' int16 = 2bytes
         '''
         data = self.store.read(offset*2)
-        fmt = '!'+str(offset)+'i'
+        fmt = '!' + str(offset) + 'i'
         value = struct.unpack(fmt, data)
         return value
 
     def __readint32(self, offset=1):
         ''' int32 = 4bytes
         '''
-        data = self.store.read(offset*4)
-        fmt = '!'+str(offset)+'i'
+        data = self.store.read(offset * 4)
+        fmt = '!' + str(offset) + 'i'
         value = struct.unpack(fmt, data)
         return value
 
     def __readint64(self, offset=1):
         ''' int64 = 8bytes
         '''
-        data = self.store.read(offset*4)
-        fmt = '!'+str(offset)+'l'
+        data = self.store.read(offset * 4)
+        fmt = '!' + str(offset) + 'l'
         value = struct.unpack(fmt, data)
         return value
 
@@ -113,27 +117,24 @@ class Entry(object):
         '''
         if self.entry[0] == rpmdefs.RPMSIGTAG_MD5:
             data = self.store.read(rpmdefs.MD5_SIZE)
-            value = struct.unpack('!'+rpmdefs.MD5_SIZE+'s', data)
+            value = struct.unpack('!' + rpmdefs.MD5_SIZE + 's', data)
             return value
         elif self.entry[0] == rpmdefs.RPMSIGTAG_PGP:
             data = self.store.read(rpmdefs.PGP_SIZE)
-            value = struct.unpack('!'+rpmdefs.PGP_SIZE+'s', data)
+            value = struct.unpack('!' + rpmdefs.PGP_SIZE + 's', data)
             return value
+
 
 class Header(object):
     ''' RPM Header Structure
     '''
     def __init__(self, header, entries , store):
-        '''
-        '''
         self.header = header
         self.entries = entries
         self.store = store
         self.pentries = []
         self.rentries = []
-
         self.__readentries()
-
 
     def __readentry(self, entry):
         ''' [4bytes][4bytes][4bytes][4bytes]
@@ -160,8 +161,10 @@ class Header(object):
             if entry:
                 self.rentries.append(entry)
 
+
 class RPMError(BaseException):
     pass
+
 
 class RPM(object):
 
@@ -216,7 +219,6 @@ class RPM(object):
         else:
             raise RPMError('wrong package type this is not a RPM file')
 
-
     def __read_sigheader(self):
         ''' read signature header
 
@@ -235,7 +237,7 @@ class RPM(object):
           MN      VER   UNUSED  IDXNUM  STSIZE
         '''
         headerfmt = '!3sc4sll'
-        if not len(header)==16:
+        if not len(header) == 16:
             raise RPMError('invalid header size')
 
         header = struct.unpack(headerfmt, header)
@@ -292,3 +294,16 @@ class RPM(object):
             return '.'.join([name, arch, 'rpm', ])
         else:
             return '.'.join([name, arch, 'src.rpm', ])
+
+    def tags(self):
+        '''returns a dict of tags, keyed by name'''
+        tgs = {}
+        for tagid,tagname in rpmdefs.RPMTAGS.items():
+            try:
+                tag = self[tagid]
+                if tag == 'None' or tag == None : tag = ''
+                tgs[tagname] = tag
+            except:
+                tgs[tagname] = ''
+        return tgs
+
