@@ -103,7 +103,20 @@ class Entry(object):
             if char == b'\x00':  # read until '\0'
                 break
             string += char
-        return string.decode('utf-8')
+
+        # not all UTF-8 is valid and we should catch any errors processing those as ultimately
+        # a strange character is acceptable
+        try:
+            returnstring = string.decode('utf-8')
+        except UnicodeError:
+            # if UTF-8 fails, give 8859-1 a try as it is the next most common
+            try:
+                returnstring = string.decode('iso-8859-1')
+            except UnicodeError:
+                # if both fail, keep the bytestring as strange characters are fine for most applications
+                returnstring = string
+
+        return returnstring
 
     def _read_string_array(self, store, data_count):
         ''' read a array of string entries
@@ -219,7 +232,7 @@ class Header(HeaderBase):
     }
 
 
-class RPMError(BaseException):
+class RPMError(Exception):
     pass
 
 
@@ -373,7 +386,11 @@ class RPM(object):
         # provides
         try:
             if self.header[1047]:
-                for name, flags, version in zip(self.header[1047], self.header[1112], self.header[1113]):
+                # Force provides flags to be itteratible by making a tuple if not itteratible
+                provides_flags = self.header[1112]
+                if not hasattr(provides_flags, '__iter__'):
+                    provides_flags = (provides_flags,)
+                for name, flags, version in zip(self.header[1047], provides_flags, self.header[1113]):
                     self.provides.append(
                         RPMprco(name=name, flags=flags, str_flags=self.RPM_PRCO_FLAGS_MAP[flags & 0xf], version=self._stringToVersion(version)))
         except:
