@@ -1,3 +1,4 @@
+import os.path
 try:
     from xml.etree.cElementTree import Element
 except:
@@ -15,7 +16,7 @@ def element(tag, attrib={}, text=None):
 
 
 class YumPackage(RPM):
-    def _xml_base_items(self, ele):
+    def _xml_base_items(self, ele, base_path):
         ele.append(element('{http://linux.duke.edu/metadata/common}name', text=self.header.name))
         ele.append(element('{http://linux.duke.edu/metadata/common}arch', text=self.header.architecture))
         ele.append(element("{http://linux.duke.edu/metadata/common}version", {'epoch': str(self.header.epoch), 'ver': unicode(self.header.version), 'rel': unicode(self.header.release)}))
@@ -26,7 +27,7 @@ class YumPackage(RPM):
         ele.append(element('{http://linux.duke.edu/metadata/common}url', text=self.header.url))
         ele.append(element('{http://linux.duke.edu/metadata/common}time', {'file': str(self.header.build_time), 'build': str(self.header.build_time)}))
         ele.append(element('{http://linux.duke.edu/metadata/common}size', {'package': str(self.filesize), 'installed': str(sum([file.size for file in self.filelist])), 'archive': str(self.header.archive_size)}))
-        ele.append(element('{http://linux.duke.edu/metadata/common}location', {'href': self.canonical_filename}))
+        ele.append(element('{http://linux.duke.edu/metadata/common}location', {'href': os.path.relpath(self.rpmfile.name, start=base_path)}))
 
     def _xml_format_items(self, ele):
         ef = element('{http://linux.duke.edu/metadata/common}format')
@@ -126,9 +127,9 @@ class YumPackage(RPM):
         for changelog in clogs:
             ele.append(element('{http://linux.duke.edu/metadata/other}changelog', {'author': changelog.name, 'date': str(changelog.time)}, text=changelog.text))
 
-    def xml_primary_metadata(self):
+    def xml_primary_metadata(self, base_path):
         ele = element("{http://linux.duke.edu/metadata/common}package", {'type': 'rpm'})
-        self._xml_base_items(ele)
+        self._xml_base_items(ele, base_path)
         self._xml_format_items(ele)
         return ele
 

@@ -6,9 +6,16 @@ try:
     from xml.etree import cElementTree as ElementTree
 except:
     from xml.etree import ElementTree
+import sys
 
 # try to import the best StringIO
-from StringIO import StringIO
+if sys.version < '3':
+    try:
+        from cStringIO import StringIO as BytesIO
+    except:
+        from StringIO import StringIO as BytesIO
+else:
+    from io import BytesIO
 
 from pyrpm.yum import YumPackage
 
@@ -125,7 +132,7 @@ class YumRepository(object):
         register_namespace('', 'http://linux.duke.edu/metadata/repo')
 
         # write everything out
-        file = StringIO()
+        file = BytesIO()
         file.write("<?xml version='1.0' encoding='utf-8'?>\n")
         tree.write(file, encoding='utf-8')
         self._store_file(file, 'repodata/repomd.xml')
@@ -138,7 +145,7 @@ class YumRepository(object):
     def add_package(self, package, clog_limit=0):
         pkgid = package.checksum
 
-        self.primary_data[pkgid] = package.xml_primary_metadata()
+        self.primary_data[pkgid] = package.xml_primary_metadata(self.repodir)
         self.filelists_data[pkgid] = package.xml_filelists_metadata()
         self.other_data[pkgid] = package.xml_other_metadata(clog_limit)
 
@@ -173,8 +180,8 @@ class YumRepository(object):
         register_namespace('', local_namespace)
 
         # write it out
-        output = StringIO()
-        output_gz = StringIO()
+        output = BytesIO()
+        output_gz = BytesIO()
         primary_file = gzip.GzipFile(fileobj=output_gz, mode='w')
         for file_obj in (output, primary_file):
             file_obj.write("<?xml version='1.0' encoding='utf-8'?>\n")
@@ -217,13 +224,13 @@ if __name__ == '__main__':
     from pprint import pprint
     from pyrpm.yum import YumPackage
 
-    repo = YumRepository("D:\\Projekte\\pyrpm\\temprepo")
+    repo = YumRepository("/Users/stefan/Projects/02strich/pyrpm/testrepo")
 
     # read existing repo
     #repo.read()
 
     # add package
-    repo.add_package(YumPackage(file(os.path.join(repo.repodir, 'tcl-devel-8.5.7-6.el6.x86_64.rpm'), 'rb')))
+    repo.add_package(YumPackage(open(os.path.join(repo.repodir, 'tst/Eterm-0.9.3-5mdv2007.0.src.rpm'), 'rb')))
 
     # delete package
     #repo.remove_package('4d9c71201f9c0d11164772600d7dadc2cad0a01ac4e472210641e242ad231b3a')
