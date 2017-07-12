@@ -34,8 +34,30 @@ class RPMTest(unittest.TestCase):
         self.assertEqual(self.rpm.canonical_filename, 'Eterm-0.9.3-5mdv2007.0.src.rpm')
 
 
+class RPMLatin1Test(unittest.TestCase):
+
+    def setUp(self):
+        self.rpm = RPM(open('tests/compat-libcap1-1.10-7.el7.x86_64.rpm', 'rb'))
+
+    def test_entries(self):
+        self.assertEqual(self.rpm.header.name, 'compat-libcap1')
+        self.assertEqual(self.rpm.header.version, '1.10')
+        self.assertEqual(self.rpm.header.release, '7.el7')
+        self.assertEqual(self.rpm.header.architecture, 'x86_64')
+        self.assertEqual(self.rpm.header.license, 'BSD-like and LGPL')
+
+    def test_package_type(self):
+        self.assertEqual(self.rpm.binary, True)
+        self.assertEqual(self.rpm.source, False)
+
+    def test_filename(self):
+        self.assertEqual(self.rpm.canonical_filename, 'compat-libcap1-1.10-7.el7.x86_64.rpm')
+
+    def test_changelog(self):
+        for entry in self.rpm.changelog:
+            self.assertEqual(type(entry.name), unicode)
+
 class RPMStringIOTest(RPMTest):
 
     def setUp(self):
-
         self.rpm = RPM(BytesIO(open('tests/Eterm-0.9.3-5mdv2007.0.src.rpm', 'rb').read()))
