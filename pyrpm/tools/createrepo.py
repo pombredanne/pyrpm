@@ -168,11 +168,11 @@ class YumRepository(object):
         for pkg_node in tree.findall(search_str):
             dictionary[id_func(pkg_node)] = pkg_node
 
-    def _create_meta(self, list, root_tag, local_namespace):
+    def _create_meta(self, package_list, root_tag, local_namespace):
         # create complete document
         tree = ElementTree.ElementTree(ElementTree.Element(root_tag))
-        tree.getroot().set('packages', str(len(list)))
-        for pkg_node in list.items():
+        tree.getroot().set('packages', str(len(package_list)))
+        for pkg_node in package_list.items():
             tree.getroot().append(pkg_node[1])
 
         # map namespaces
