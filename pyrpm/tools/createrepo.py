@@ -133,7 +133,7 @@ class YumRepository(object):
 
         # write everything out
         file = BytesIO()
-        file.write("<?xml version='1.0' encoding='utf-8'?>\n")
+        file.write("<?xml version='1.0' encoding='utf-8'?>\n".encode('utf-8'))
         tree.write(file, encoding='utf-8')
         self._store_file(file, 'repodata/repomd.xml')
         file.close()
