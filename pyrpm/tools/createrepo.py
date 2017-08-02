@@ -184,7 +184,7 @@ class YumRepository(object):
         output_gz = BytesIO()
         primary_file = gzip.GzipFile(fileobj=output_gz, mode='w')
         for file_obj in (output, primary_file):
-            file_obj.write("<?xml version='1.0' encoding='utf-8'?>\n".encode('utf-8')
+            file_obj.write("<?xml version='1.0' encoding='utf-8'?>\n".encode('utf-8'))
             tree.write(file_obj, 'utf-8')
 
         return output, output_gz
