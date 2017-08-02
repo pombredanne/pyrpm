@@ -7,8 +7,12 @@ python:
   - "3.6"
   - "pypy"
   - "pypy3"
-script:  python setup.py test
+install:
+  - pip install coveralls
+script: coverage run setup.py test
 matrix:
   allow_failures:
   - python: "pypy"
   - python: "pypy3"
+after_success:
+  - coveralls
