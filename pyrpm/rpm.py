@@ -15,7 +15,7 @@ import sys
 if sys.version < '3':
     try:
         from cStringIO import StringIO as BytesIO
-    except:
+    except ImportError:
         from StringIO import StringIO as BytesIO
 else:
     from io import BytesIO

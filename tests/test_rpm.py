@@ -62,6 +62,7 @@ class RPMLatin1Test(unittest.TestCase):
         for entry in self.rpm.changelog:
             self.assertEqual(type(entry.name), unicode)
 
+
 class RPMStringIOTest(RPMTest):
 
     def setUp(self):

@@ -29,9 +29,9 @@ setup(name=NAME,
       ],
 
       packages=find_packages(where='.'),
-      options = {
-          'bdist_rpm':{
-              'build_requires':[
+      options={
+          'bdist_rpm': {
+              'build_requires': [
                   'python',
                   'python-setuptools',
               ],

@@ -4,7 +4,7 @@ import os
 import os.path
 try:
     from xml.etree import cElementTree as ElementTree
-except:
+except ImportError:
     from xml.etree import ElementTree
 import sys
 
@@ -12,16 +12,14 @@ import sys
 if sys.version < '3':
     try:
         from cStringIO import StringIO as BytesIO
-    except:
+    except ImportError:
         from StringIO import StringIO as BytesIO
 else:
     from io import BytesIO
 
-from pyrpm.yum import YumPackage
-
 # monkey-patch ElementTree 1.2.6 and below to make register_namespace work
 if ElementTree.VERSION[0:3] == '1.2':
-    #in etree < 1.3, this is a workaround for suppressing prefixes
+    # in etree < 1.3, this is a workaround for suppressing prefixes
 
     def fixtag(tag, namespaces):
         import string
@@ -59,7 +57,7 @@ def register_namespace(name, ns):
     if ElementTree.VERSION[0:3] == '1.2':
         ElementTree._namespace_map[ns] = name if name else None
     else:
-        #For etree > 1.3, use register_namespace function
+        # For etree > 1.3, use register_namespace function
         ElementTree.register_namespace(name, ns)
 
 
@@ -220,19 +218,19 @@ class YumRepository(object):
                 a.text = text
             parent.append(a)
 
+
 if __name__ == '__main__':
-    from pprint import pprint
     from pyrpm.yum import YumPackage
 
     repo = YumRepository("/Users/stefan/Projects/02strich/pyrpm/testrepo")
 
     # read existing repo
-    #repo.read()
+    # repo.read()
 
     # add package
     repo.add_package(YumPackage(open(os.path.join(repo.repodir, 'tst/Eterm-0.9.3-5mdv2007.0.src.rpm'), 'rb')))
 
     # delete package
-    #repo.remove_package('4d9c71201f9c0d11164772600d7dadc2cad0a01ac4e472210641e242ad231b3a')
+    # repo.remove_package('4d9c71201f9c0d11164772600d7dadc2cad0a01ac4e472210641e242ad231b3a')
 
     repo.save()

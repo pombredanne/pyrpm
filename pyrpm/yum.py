@@ -1,7 +1,7 @@
 import os.path
 try:
     from xml.etree.cElementTree import Element
-except:
+except ImportError:
     from xml.etree.ElementTree import Element
 
 from rpm import RPM
