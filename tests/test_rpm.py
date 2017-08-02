@@ -12,8 +12,10 @@ from pyrpm.rpm import RPM
 class RPMTest(unittest.TestCase):
 
     def setUp(self):
-
         self.rpm = RPM(open('tests/Eterm-0.9.3-5mdv2007.0.src.rpm', 'rb'))
+
+    def tearDown(self):
+        self.rpm.rpmfile.close()
 
     def test_entries(self):
 
@@ -39,6 +41,9 @@ class RPMLatin1Test(unittest.TestCase):
     def setUp(self):
         self.rpm = RPM(open('tests/compat-libcap1-1.10-7.el7.x86_64.rpm', 'rb'))
 
+    def tearDown(self):
+        self.rpm.rpmfile.close()
+
     def test_entries(self):
         self.assertEqual(self.rpm.header.name, 'compat-libcap1')
         self.assertEqual(self.rpm.header.version, '1.10')
@@ -60,4 +65,6 @@ class RPMLatin1Test(unittest.TestCase):
 class RPMStringIOTest(RPMTest):
 
     def setUp(self):
-        self.rpm = RPM(BytesIO(open('tests/Eterm-0.9.3-5mdv2007.0.src.rpm', 'rb').read()))
+        with open('tests/Eterm-0.9.3-5mdv2007.0.src.rpm', 'rb') as f:
+            data = f.read()
+        self.rpm = RPM(BytesIO(data))
