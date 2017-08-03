@@ -3,6 +3,12 @@ PyRPM
 =====
 
 .. image:: https://travis-ci.org/02strich/pyrpm.png
+   :target: https://travis-ci.org/02strich/pyrpm
+.. image:: https://coveralls.io/repos/github/02strich/pyrpm/badge.svg?branch=master
+   :target: https://coveralls.io/github/02strich/pyrpm?branch=master
+.. image:: https://badge.fury.io/py/pyrpm-02strich.svg
+   :target: https://badge.fury.io/py/pyrpm-02strich
+
 
 :authors: Stefan Richter, Mário Morgado
 :license: BSD
