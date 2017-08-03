@@ -11,7 +11,7 @@ from pyrpm.tools.createrepo import YumRepository
 class CreateRepoTest(unittest.TestCase):
     def setUp(self):
         self.repodir = os.path.join(os.path.dirname(__file__), "testrepo")
-        self.pkg = YumPackage(open('tests/Eterm-0.9.3-5mdv2007.0.src.rpm', 'rb'))
+        self.pkg = YumPackage(open('tests/compat-libcap1-1.10-7.el7.x86_64.rpm', 'rb'))
 
         # ensure empty repodir
         if os.path.exists(self.repodir):
@@ -34,7 +34,7 @@ class CreateRepoTest(unittest.TestCase):
         repo.remove_package('4d9c71201f9c0d11164772600d7dadc2cad0a01ac4e472210641e242ad231b3a')
         assert len(list(repo.packages())) == 1
 
-        repo.remove_package('c77bcc090c8d541e475f6f39b65a742a92a7f9a2e545ea8210eef0ca995515ac')
+        repo.remove_package('f03a3843b53fc9eba490760caefdd79679b1043b67bfccc784e5d326395fc887')
         assert len(list(repo.packages())) == 0
 
     def test_save_read(self):

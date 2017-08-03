@@ -30,6 +30,7 @@ class RPMTest(unittest.TestCase):
         self.assertEqual(self.rpm.header.architecture, 'i586')
         self.assertEqual(self.rpm.header.license, 'BSD')
         self.assertEqual(self.rpm.header.description, description)
+        self.assertEqual(self.rpm.checksum, 'c77bcc090c8d541e475f6f39b65a742a92a7f9a2e545ea8210eef0ca995515ac')
 
     def test_package_type(self):
         self.assertEqual(self.rpm.binary, False)
@@ -38,6 +39,10 @@ class RPMTest(unittest.TestCase):
     def test_filename(self):
         self.assertEqual(self.rpm.canonical_filename, 'Eterm-0.9.3-5mdv2007.0.src.rpm')
 
+    def test_pco(self):
+        self.assertEqual(len(self.rpm.provides), 0)
+        self.assertEqual(len(self.rpm.conflicts), 0)
+        self.assertEqual(len(self.rpm.obsoletes), 0)
 
 class RPMLatin1Test(unittest.TestCase):
 
@@ -53,6 +58,7 @@ class RPMLatin1Test(unittest.TestCase):
         self.assertEqual(self.rpm.header.release, '7.el7')
         self.assertEqual(self.rpm.header.architecture, 'x86_64')
         self.assertEqual(self.rpm.header.license, 'BSD-like and LGPL')
+        self.assertEqual(self.rpm.checksum, 'f03a3843b53fc9eba490760caefdd79679b1043b67bfccc784e5d326395fc887')
 
     def test_package_type(self):
         self.assertEqual(self.rpm.binary, True)
@@ -65,6 +71,10 @@ class RPMLatin1Test(unittest.TestCase):
         for entry in self.rpm.changelog:
             self.assertEqual(type(entry.name), string_type)
 
+    def test_pco(self):
+        self.assertEqual(len(self.rpm.provides), 3)
+        self.assertEqual(len(self.rpm.conflicts), 0)
+        self.assertEqual(len(self.rpm.obsoletes), 0)
 
 class RPMStringIOTest(RPMTest):
 
