@@ -28,3 +28,16 @@ Usage
         'i586'
         >>> rpm.header.description
         'package description'
+
+YUM Repository
+--------------
+
+        >>> from pyrpm.yum import YumPackage
+        >>> repo = YumRepository("testrepo")
+        >>> # read existing repo
+        >>> repo.read()
+        >>> # add package
+        >>> repo.add_package(YumPackage(open(os.path.join(repo.repodir, 'tst/Eterm-0.9.3-5mdv2007.0.src.rpm'), 'rb')))
+        >>> # delete package
+        >>> repo.remove_package('4d9c71201f9c0d11164772600d7dadc2cad0a01ac4e472210641e242ad231b3a')
+        >>> repo.save()
