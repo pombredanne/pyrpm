@@ -1,6 +1,5 @@
 from io import BytesIO
 import unittest
-import sys
 
 try:
     # py2
@@ -44,6 +43,7 @@ class RPMTest(unittest.TestCase):
         self.assertEqual(len(self.rpm.conflicts), 0)
         self.assertEqual(len(self.rpm.obsoletes), 0)
 
+
 class RPMLatin1Test(unittest.TestCase):
 
     def setUp(self):
@@ -75,6 +75,7 @@ class RPMLatin1Test(unittest.TestCase):
         self.assertEqual(len(self.rpm.provides), 3)
         self.assertEqual(len(self.rpm.conflicts), 0)
         self.assertEqual(len(self.rpm.obsoletes), 0)
+
 
 class RPMStringIOTest(RPMTest):
 

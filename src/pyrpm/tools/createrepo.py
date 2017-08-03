@@ -3,13 +3,11 @@ import hashlib
 from io import BytesIO
 import os
 import os.path
+
 try:
     from xml.etree import cElementTree as ElementTree
 except ImportError:
     from xml.etree import ElementTree
-import sys
-
-
 
 from future.utils import iteritems
 

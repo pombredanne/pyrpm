@@ -11,9 +11,6 @@ from io import BytesIO
 import re
 import stat
 import struct
-import sys
-
-
 
 
 class Entry(object):
@@ -436,7 +433,7 @@ class RPM(object):
         i = verstring.find(':')
         if i != -1:
             try:
-                epoch = str(long(verstring[:i]))
+                epoch = str(int(verstring[:i]))
             except ValueError:
                 # look, garbage in the epoch field, how fun, kill it
                 epoch = '0'  # this is our fallback, deal

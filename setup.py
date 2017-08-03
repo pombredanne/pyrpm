@@ -29,7 +29,7 @@ setup(name=NAME,
       ],
 
       packages=find_packages(where='src'),
-      package_dir={'':'src'},
+      package_dir={'': 'src'},
       options={
           'bdist_rpm': {
               'build_requires': [
