@@ -11,41 +11,6 @@ except ImportError:
 
 from future.utils import iteritems
 
-# monkey-patch ElementTree 1.2.6 and below to make register_namespace work
-if ElementTree.VERSION[0:3] == '1.2':
-    # in etree < 1.3, this is a workaround for suppressing prefixes
-
-    def fixtag(tag, namespaces):
-        import string
-        # given a decorated tag (of the form {uri}tag), return prefixed
-        # tag and namespace declaration, if any
-        if isinstance(tag, ElementTree.QName):
-            tag = tag.text
-        namespace_uri, tag = string.split(tag[1:], "}", 1)
-        prefix = namespaces.get(namespace_uri)
-        if namespace_uri not in namespaces:
-            prefix = ElementTree._namespace_map.get(namespace_uri)
-            if namespace_uri not in ElementTree._namespace_map:
-                prefix = "ns%d" % len(namespaces)
-            namespaces[namespace_uri] = prefix
-            if prefix == "xml":
-                xmlns = None
-            else:
-                if prefix is not None:
-                    nsprefix = ':' + prefix
-                else:
-                    nsprefix = ''
-                xmlns = ("xmlns%s" % nsprefix, namespace_uri)
-        else:
-            xmlns = None
-        if prefix is not None:
-            prefix += ":"
-        else:
-            prefix = ''
-
-        return "%s%s" % (prefix, tag), xmlns
-    ElementTree.fixtag = fixtag
-
 
 def register_namespace(name, ns):
     if ElementTree.VERSION[0:3] == '1.2':
