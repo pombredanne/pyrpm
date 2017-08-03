@@ -2,7 +2,12 @@ from io import BytesIO
 import unittest
 import sys
 
-from builtins import str as text
+try:
+    # py2
+    string_type = unicode
+except NameError:
+    # py3
+    string_type = str
 
 from pyrpm.rpm import RPM
 
@@ -58,7 +63,7 @@ class RPMLatin1Test(unittest.TestCase):
 
     def test_changelog(self):
         for entry in self.rpm.changelog:
-            self.assertEqual(type(entry.name), text)
+            self.assertEqual(type(entry.name), string_type)
 
 
 class RPMStringIOTest(RPMTest):
