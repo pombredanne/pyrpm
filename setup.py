@@ -28,7 +28,8 @@ setup(name=NAME,
           'Topic :: Software Development :: Libraries',
       ],
 
-      packages=find_packages(where='.'),
+      packages=find_packages(where='src'),
+      package_dir={'':'src'},
       options={
           'bdist_rpm': {
               'build_requires': [
