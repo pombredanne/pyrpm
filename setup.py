@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 NAME = 'pyrpm-02strich'
-VERSION = '0.5.7'
+VERSION = '0.5.8'
 RELEASE = '1'
 
 setup(name=NAME,
