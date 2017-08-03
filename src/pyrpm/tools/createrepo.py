@@ -1,5 +1,6 @@
 import gzip
 import hashlib
+from io import BytesIO
 import os
 import os.path
 try:
@@ -8,14 +9,9 @@ except ImportError:
     from xml.etree import ElementTree
 import sys
 
-# try to import the best StringIO
-if sys.version < '3':
-    try:
-        from cStringIO import StringIO as BytesIO
-    except ImportError:
-        from StringIO import StringIO as BytesIO
-else:
-    from io import BytesIO
+
+
+from future.utils import iteritems
 
 # monkey-patch ElementTree 1.2.6 and below to make register_namespace work
 if ElementTree.VERSION[0:3] == '1.2':
@@ -137,7 +133,7 @@ class YumRepository(object):
         file.close()
 
     def packages(self):
-        for key, value in self.primary_data.iteritems():
+        for key, value in iteritems(self.primary_data):
             yield (key, value, self.filelists_data[key], self.other_data[key])
 
     def add_package(self, package, clog_limit=0):

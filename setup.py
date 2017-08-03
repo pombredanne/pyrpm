@@ -39,6 +39,6 @@ setup(name=NAME,
               'release': RELEASE
           },
       },
-      use_2to3=True,
+      install_requires=['future', ],
       test_suite="tests",
       )

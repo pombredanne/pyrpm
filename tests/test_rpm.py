@@ -1,10 +1,8 @@
+from io import BytesIO
 import unittest
 import sys
 
-if sys.version < '3':
-    from cStringIO import StringIO as BytesIO
-else:
-    from io import BytesIO
+from builtins import str as text
 
 from pyrpm.rpm import RPM
 
@@ -60,7 +58,7 @@ class RPMLatin1Test(unittest.TestCase):
 
     def test_changelog(self):
         for entry in self.rpm.changelog:
-            self.assertEqual(type(entry.name), unicode)
+            self.assertEqual(type(entry.name), text)
 
 
 class RPMStringIOTest(RPMTest):
