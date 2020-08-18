@@ -1,9 +1,12 @@
+import os.path
 try:
     from xml.etree.cElementTree import Element
-except:
+except ImportError:
     from xml.etree.ElementTree import Element
 
-from rpm import RPM
+from builtins import str as text
+
+from pyrpm.rpm import RPM
 
 
 def element(tag, attrib={}, text=None):
@@ -15,10 +18,10 @@ def element(tag, attrib={}, text=None):
 
 
 class YumPackage(RPM):
-    def _xml_base_items(self, ele):
+    def _xml_base_items(self, ele, base_path):
         ele.append(element('{http://linux.duke.edu/metadata/common}name', text=self.header.name))
         ele.append(element('{http://linux.duke.edu/metadata/common}arch', text=self.header.architecture))
-        ele.append(element("{http://linux.duke.edu/metadata/common}version", {'epoch': str(self.header.epoch), 'ver': unicode(self.header.version), 'rel': unicode(self.header.release)}))
+        ele.append(element("{http://linux.duke.edu/metadata/common}version", {'epoch': str(self.header.epoch), 'ver': text(self.header.version), 'rel': text(self.header.release)}))
         ele.append(element('{http://linux.duke.edu/metadata/common}checksum', {'type': 'sha256', 'pkgid': 'YES'}, text=self.checksum))
         ele.append(element('{http://linux.duke.edu/metadata/common}summary', text=self.header.summary))
         ele.append(element('{http://linux.duke.edu/metadata/common}description', text=self.header.description))
@@ -26,7 +29,7 @@ class YumPackage(RPM):
         ele.append(element('{http://linux.duke.edu/metadata/common}url', text=self.header.url))
         ele.append(element('{http://linux.duke.edu/metadata/common}time', {'file': str(self.header.build_time), 'build': str(self.header.build_time)}))
         ele.append(element('{http://linux.duke.edu/metadata/common}size', {'package': str(self.filesize), 'installed': str(sum([file.size for file in self.filelist])), 'archive': str(self.header.archive_size)}))
-        ele.append(element('{http://linux.duke.edu/metadata/common}location', {'href': self.canonical_filename}))
+        ele.append(element('{http://linux.duke.edu/metadata/common}location', {'href': os.path.relpath(self.rpmfile.name, start=base_path)}))
 
     def _xml_format_items(self, ele):
         ef = element('{http://linux.duke.edu/metadata/common}format')
@@ -126,20 +129,20 @@ class YumPackage(RPM):
         for changelog in clogs:
             ele.append(element('{http://linux.duke.edu/metadata/other}changelog', {'author': changelog.name, 'date': str(changelog.time)}, text=changelog.text))
 
-    def xml_primary_metadata(self):
+    def xml_primary_metadata(self, base_path):
         ele = element("{http://linux.duke.edu/metadata/common}package", {'type': 'rpm'})
-        self._xml_base_items(ele)
+        self._xml_base_items(ele, base_path)
         self._xml_format_items(ele)
         return ele
 
     def xml_filelists_metadata(self):
         ele = element("{http://linux.duke.edu/metadata/filelists}package", {'pkgid': self.checksum, 'name': self.header.name, 'arch': self.header.architecture})
-        ele.append(element("{http://linux.duke.edu/metadata/filelists}version", {'epoch': str(self.header.epoch), 'ver': unicode(self.header.version), 'rel': unicode(self.header.release)}))
+        ele.append(element("{http://linux.duke.edu/metadata/filelists}version", {'epoch': str(self.header.epoch), 'ver': text(self.header.version), 'rel': text(self.header.release)}))
         self._xml_files(ele)
         return ele
 
     def xml_other_metadata(self, clog_limit=0):
         ele = element("{http://linux.duke.edu/metadata/other}package", {'pkgid': self.checksum, 'name': self.header.name, 'arch': self.header.architecture})
-        ele.append(element("{http://linux.duke.edu/metadata/other}version", {'epoch': str(self.header.epoch), 'ver': unicode(self.header.version), 'rel': unicode(self.header.release)}))
+        ele.append(element("{http://linux.duke.edu/metadata/other}version", {'epoch': str(self.header.epoch), 'ver': text(self.header.version), 'rel': text(self.header.release)}))
         self._xml_changelog(ele, clog_limit)
         return ele

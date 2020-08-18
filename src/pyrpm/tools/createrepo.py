@@ -1,58 +1,22 @@
 import gzip
 import hashlib
+from io import BytesIO
 import os
 import os.path
+
 try:
     from xml.etree import cElementTree as ElementTree
-except:
+except ImportError:
     from xml.etree import ElementTree
 
-# try to import the best StringIO
-from StringIO import StringIO
-
-from pyrpm.yum import YumPackage
-
-# monkey-patch ElementTree 1.2.6 and below to make register_namespace work
-if ElementTree.VERSION[0:3] == '1.2':
-    #in etree < 1.3, this is a workaround for suppressing prefixes
-
-    def fixtag(tag, namespaces):
-        import string
-        # given a decorated tag (of the form {uri}tag), return prefixed
-        # tag and namespace declaration, if any
-        if isinstance(tag, ElementTree.QName):
-            tag = tag.text
-        namespace_uri, tag = string.split(tag[1:], "}", 1)
-        prefix = namespaces.get(namespace_uri)
-        if namespace_uri not in namespaces:
-            prefix = ElementTree._namespace_map.get(namespace_uri)
-            if namespace_uri not in ElementTree._namespace_map:
-                prefix = "ns%d" % len(namespaces)
-            namespaces[namespace_uri] = prefix
-            if prefix == "xml":
-                xmlns = None
-            else:
-                if prefix is not None:
-                    nsprefix = ':' + prefix
-                else:
-                    nsprefix = ''
-                xmlns = ("xmlns%s" % nsprefix, namespace_uri)
-        else:
-            xmlns = None
-        if prefix is not None:
-            prefix += ":"
-        else:
-            prefix = ''
-
-        return "%s%s" % (prefix, tag), xmlns
-    ElementTree.fixtag = fixtag
+from future.utils import iteritems
 
 
 def register_namespace(name, ns):
     if ElementTree.VERSION[0:3] == '1.2':
         ElementTree._namespace_map[ns] = name if name else None
     else:
-        #For etree > 1.3, use register_namespace function
+        # For etree > 1.3, use register_namespace function
         ElementTree.register_namespace(name, ns)
 
 
@@ -125,20 +89,20 @@ class YumRepository(object):
         register_namespace('', 'http://linux.duke.edu/metadata/repo')
 
         # write everything out
-        file = StringIO()
-        file.write("<?xml version='1.0' encoding='utf-8'?>\n")
+        file = BytesIO()
+        file.write("<?xml version='1.0' encoding='utf-8'?>\n".encode('utf-8'))
         tree.write(file, encoding='utf-8')
         self._store_file(file, 'repodata/repomd.xml')
         file.close()
 
     def packages(self):
-        for key, value in self.primary_data.iteritems():
+        for key, value in iteritems(self.primary_data):
             yield (key, value, self.filelists_data[key], self.other_data[key])
 
     def add_package(self, package, clog_limit=0):
         pkgid = package.checksum
 
-        self.primary_data[pkgid] = package.xml_primary_metadata()
+        self.primary_data[pkgid] = package.xml_primary_metadata(self.repodir)
         self.filelists_data[pkgid] = package.xml_filelists_metadata()
         self.other_data[pkgid] = package.xml_other_metadata(clog_limit)
 
@@ -161,11 +125,11 @@ class YumRepository(object):
         for pkg_node in tree.findall(search_str):
             dictionary[id_func(pkg_node)] = pkg_node
 
-    def _create_meta(self, list, root_tag, local_namespace):
+    def _create_meta(self, package_list, root_tag, local_namespace):
         # create complete document
         tree = ElementTree.ElementTree(ElementTree.Element(root_tag))
-        tree.getroot().set('packages', str(len(list)))
-        for pkg_node in list.items():
+        tree.getroot().set('packages', str(len(package_list)))
+        for pkg_node in package_list.items():
             tree.getroot().append(pkg_node[1])
 
         # map namespaces
@@ -173,11 +137,11 @@ class YumRepository(object):
         register_namespace('', local_namespace)
 
         # write it out
-        output = StringIO()
-        output_gz = StringIO()
+        output = BytesIO()
+        output_gz = BytesIO()
         primary_file = gzip.GzipFile(fileobj=output_gz, mode='w')
         for file_obj in (output, primary_file):
-            file_obj.write("<?xml version='1.0' encoding='utf-8'?>\n")
+            file_obj.write("<?xml version='1.0' encoding='utf-8'?>\n".encode('utf-8'))
             tree.write(file_obj, 'utf-8')
 
         return output, output_gz
@@ -212,20 +176,3 @@ class YumRepository(object):
             if text is not None:
                 a.text = text
             parent.append(a)
-
-if __name__ == '__main__':
-    from pprint import pprint
-    from pyrpm.yum import YumPackage
-
-    repo = YumRepository("D:\\Projekte\\pyrpm\\temprepo")
-
-    # read existing repo
-    #repo.read()
-
-    # add package
-    repo.add_package(YumPackage(file(os.path.join(repo.repodir, 'tcl-devel-8.5.7-6.el6.x86_64.rpm'), 'rb')))
-
-    # delete package
-    #repo.remove_package('4d9c71201f9c0d11164772600d7dadc2cad0a01ac4e472210641e242ad231b3a')
-
-    repo.save()

@@ -7,18 +7,10 @@ PyRPM is a pure python, simple to use, module to read information from a RPM fil
 
 from collections import namedtuple
 import hashlib
+from io import BytesIO
 import re
 import stat
 import struct
-import sys
-
-if sys.version < '3':
-    try:
-        from cStringIO import StringIO as BytesIO
-    except:
-        from StringIO import StringIO as BytesIO
-else:
-    from io import BytesIO
 
 
 class Entry(object):
@@ -441,7 +433,7 @@ class RPM(object):
         i = verstring.find(':')
         if i != -1:
             try:
-                epoch = str(long(verstring[:i]))
+                epoch = str(int(verstring[:i]))
             except ValueError:
                 # look, garbage in the epoch field, how fun, kill it
                 epoch = '0'  # this is our fallback, deal

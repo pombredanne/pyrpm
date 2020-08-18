@@ -1,8 +1,8 @@
 from setuptools import setup, find_packages
 
 NAME = 'pyrpm-02strich'
-VERSION = '0.5.6'
-RELEASE = '2'
+VERSION = '0.5.8'
+RELEASE = '1'
 
 setup(name=NAME,
       version=VERSION,
@@ -18,25 +18,27 @@ setup(name=NAME,
           'Operating System :: OS Independent',
           'Programming Language :: Python',
           'Programming Language :: Python :: 2',
-          'Programming Language :: Python :: 2.4',
-          'Programming Language :: Python :: 2.5',
-          'Programming Language :: Python :: 2.6',
           'Programming Language :: Python :: 2.7',
           'Programming Language :: Python :: 3',
-          'Programming Language :: Python :: 3.1',
+          'Programming Language :: Python :: 3.2',
+          'Programming Language :: Python :: 3.3',
+          'Programming Language :: Python :: 3.4',
+          'Programming Language :: Python :: 3.5',
+          'Programming Language :: Python :: 3.6',
           'Topic :: Software Development :: Libraries',
       ],
 
-      packages=find_packages(where='.'),
-      options = {
-          'bdist_rpm':{
-              'build_requires':[
+      packages=find_packages(where='src'),
+      package_dir={'': 'src'},
+      options={
+          'bdist_rpm': {
+              'build_requires': [
                   'python',
                   'python-setuptools',
               ],
               'release': RELEASE
           },
       },
-      use_2to3=True,
+      install_requires=['future', ],
       test_suite="tests",
       )
